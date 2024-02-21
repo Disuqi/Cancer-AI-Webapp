@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import * as tf from "@tensorflow/tfjs";
+import cv from "@techstark/opencv-js";
 
 export default function Page()
 {
@@ -20,7 +21,6 @@ export default function Page()
             toast.error("Upload an image first");
         }
         const model = await tf.loadLayersModel("models/converted_categorical/model.json");
-        const img = new Image();
     }
     return <div className="container mx-auto flex flex-col gap-10">
         <div className="flex justify-center items-center gap-4">
@@ -42,4 +42,12 @@ export default function Page()
             <button className="rounded-full px-7 py-3 m-5 bg-indigo-400 font-semibold hover:bg-indigo-300" onClick={detect}>Detect</button>
         </div>
     </div>
+}
+
+async function cropImage(image: File)
+{
+    const fileReader = new FileReader();
+    fileReader.onload = () =>
+    {};
+    fileReader.readAsArrayBuffer(image);
 }

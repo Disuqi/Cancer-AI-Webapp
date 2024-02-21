@@ -12,6 +12,7 @@
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/joy": "^5.0.0-beta.27",
+    "@techstark/opencv-js": "^4.9.0-release.2",
     "@tensorflow/tfjs": "^4.17.0",
     "next": "14.1.0",
     "react": "^18",
@@ -28,9 +29,5 @@
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
-  },
-  "opencv4nodejs": {
-    "autoBuildFlags": "-DOPENCV_GENERATE_PKGCONFIG=ON -DOPENCV_PC_FILE_NAME=opencv.pc",
-    "autoBuildOpencvVersion": "4.1.0"
   }
 }
