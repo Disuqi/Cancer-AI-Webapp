@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "./components/header";
+import Header from "@/app/components/header";
 import { Toaster } from "react-hot-toast";
+import {RecoilRoot} from "recoil";
+import Root from "@/app/components/root";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,9 +26,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={inter.className}>
           <main className="min-h-screen min-w-screen bg-gray-900">
-            <Header/>
-            {children}
-            <Toaster/>
+              <Root>{children}</Root>
           </main>
         </body>
       </html>

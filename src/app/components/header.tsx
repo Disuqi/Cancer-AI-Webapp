@@ -1,67 +1,53 @@
+"use client"
+import LogoSVG from "@/app/svgs/logo";
+import {useRecoilState} from "recoil";
+import {signInModalState, userSignedInState} from "@/app/atoms/authentication";
+import {supabase} from "@/lib/supabase";
+import UserDropdown from "@/app/components/userdropdown";
 
 export default function Header() {
-  return (
-    <header className="w-screen flex flex-row justify-between container mx-auto items-center py-5">
-      <a href="/" className="text-white hover:text-indigo-300 flex flex-row flex-nowrap whitespace-nowrap text-nowrap items-center justify-center gap-2">
-        <svg className="w-16 h-16" fill="currentColor" version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.000000 512.000000">
-          <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" stroke="currentColor" strokeWidth="50">
-          <path d="M1639 4361 c-356 -86 -653 -162 -662 -169 -8 -7 -128 -187 -266 -400
-          l-250 -387 45 -410 c25 -226 49 -419 53 -431 7 -15 103 -64 337 -173 181 -85
-          332 -156 336 -160 4 -4 48 -116 97 -250 49 -134 95 -247 103 -252 7 -5 221 -9
-          475 -9 l461 0 10 -28 c174 -488 387 -1070 394 -1080 6 -6 22 -12 36 -12 21 0
-          76 50 259 232 128 128 236 240 238 249 4 10 -36 101 -95 219 -56 111 -100 204
-          -97 206 2 2 231 42 510 88 279 47 515 91 525 98 70 52 462 370 462 376 0 4 11
-          172 24 374 l24 367 -24 302 c-16 205 -28 307 -36 315 -11 10 -791 550 -1203
-          832 l-120 82 -470 90 c-259 49 -481 89 -495 89 -14 0 -316 -71 -671 -158z
-          m635 32 c11 -41 108 -684 104 -689 -3 -3 -272 95 -597 217 -325 122 -590 224
-          -588 226 4 3 1045 259 1069 262 4 1 9 -7 12 -16z m491 -58 c193 -36 356 -68
-          363 -70 7 -3 -122 -118 -295 -261 -169 -142 -316 -264 -326 -272 -9 -8 -19
-          -13 -21 -11 -3 3 -28 151 -56 329 -28 179 -52 333 -55 343 -3 15 1 18 18 14
-          12 -3 180 -35 372 -72z m843 -344 c123 -85 221 -155 219 -158 -6 -5 -1188
-          -144 -1199 -141 -4 2 136 123 313 271 l321 267 62 -43 c33 -24 161 -112 284
-          -196z m-1972 -123 c326 -122 592 -223 591 -224 -5 -6 -1572 -185 -1589 -182
-          -15 2 17 59 183 316 112 171 207 312 212 312 6 0 277 -100 603 -222z m2224
-          -143 c0 -4 -461 -647 -476 -664 -4 -5 -783 511 -784 519 0 5 1176 147 1233
-          149 15 1 27 -1 27 -4z m390 -448 c139 -219 251 -399 249 -400 -2 -2 -159 20
-          -349 48 -190 29 -416 62 -503 75 -123 18 -157 26 -153 37 6 14 437 615 464
-          646 13 14 18 15 28 5 6 -7 125 -192 264 -411z m171 152 l96 -68 7 -108 c4 -59
-          9 -139 12 -178 l6 -70 -182 285 c-100 156 -186 293 -192 304 -10 18 16 2 253
-          -165z m-2057 109 c-39 -126 -304 -833 -311 -833 -19 0 -1351 650 -1344 656 3
-          3 350 45 771 94 662 76 844 97 883 104 5 0 5 -9 1 -21z m521 -272 c371 -247
-          389 -260 360 -268 -16 -4 -264 -73 -550 -152 -286 -79 -521 -142 -523 -141 -1
-          1 66 189 149 418 100 275 155 414 163 410 6 -4 187 -124 401 -267z m-1483
-          -361 c307 -149 558 -272 558 -275 0 -10 -664 -299 -670 -292 -402 591 -620
-          913 -620 916 0 3 39 -14 88 -37 48 -23 338 -164 644 -312z m-540 -115 c140
-          -206 257 -380 261 -387 4 -7 -84 31 -195 83 -112 53 -220 102 -240 111 -43 17
-          -36 -12 -73 321 -28 246 -29 271 -16 257 4 -6 123 -179 263 -385z m3112 60
-          c257 -38 470 -70 471 -72 3 -3 -893 -508 -914 -516 -4 -1 -22 132 -40 295 -18
-          164 -35 315 -38 336 -5 36 -5 37 23 32 16 -3 240 -37 498 -75z m-621 33 c14
-          -94 69 -624 66 -628 -3 -2 -155 45 -339 105 -184 59 -443 143 -575 186 -211
-          68 -236 78 -210 85 17 5 255 71 530 148 275 77 505 140 511 140 6 1 14 -16 17
-          -36z m1134 -215 c-2 -7 -92 -203 -198 -436 -133 -291 -198 -421 -206 -417 -16
-          6 -491 344 -497 354 -4 6 880 508 898 510 4 1 6 -5 3 -11z m-2298 -462 c67
-          -181 120 -330 118 -332 -2 -2 -204 85 -450 193 -246 108 -444 200 -440 204 5
-          4 150 70 323 147 211 94 317 136 322 128 3 -6 61 -159 127 -340z m626 134
-          c275 -89 502 -163 504 -165 2 -3 -7 -8 -20 -13 -13 -5 -212 -80 -443 -166
-          -230 -86 -421 -155 -423 -152 -4 4 -262 694 -263 703 0 1 33 -9 73 -22 39 -14
-          297 -97 572 -185z m1714 -6 c-6 -104 -14 -198 -19 -210 -8 -21 -266 -237 -259
-          -217 12 33 284 621 286 619 2 -1 -2 -88 -8 -192z m-2761 -337 c205 -90 375
-          -167 379 -171 3 -3 -142 -6 -324 -6 l-330 0 -58 163 c-32 89 -61 168 -63 176
-          -4 10 -1 12 9 9 8 -4 182 -80 387 -171z m1963 -58 c118 -83 222 -159 231 -168
-          17 -15 -12 -21 -393 -85 -226 -37 -412 -66 -414 -64 -4 3 103 155 298 427 22
-          30 44 51 51 48 7 -3 109 -74 227 -158z m-406 105 c-24 -37 -296 -417 -305
-          -428 -8 -7 -434 137 -453 154 -6 5 744 296 772 300 2 0 -4 -12 -14 -26z m-570
-          -450 c115 -42 211 -77 214 -79 5 -5 -159 -667 -168 -677 -5 -6 -311 826 -311
-          845 0 4 12 2 28 -4 15 -6 121 -44 237 -85z m370 -344 l70 -140 -147 -147 -146
-          -146 71 286 c40 158 74 287 77 287 3 0 37 -63 75 -140z"/>
-          </g>
-        </svg>
-        <h1 className="font-black text-3xl cursor-pointer">Cancer AI</h1>
-      </a>
-      <div className="flex flex-row gap-10 items-center justify-center font-bold text-xl">
-        <a href="/" className="hover:text-indigo-300 cursor-pointer">Home</a>
-        <a className="hover:text-indigo-300 cursor-pointer">Sign In</a>
-      </div>
-    </header>
-  );
+    const [signInModalOpen, setSignInModalOpen] = useRecoilState(signInModalState);
+    const [userSignedIn, setUserSignedIn] = useRecoilState(userSignedInState);
+    supabase.auth.getUser().then(response =>
+    {
+        if(response.error)
+        {
+            setUserSignedIn(false);
+        }else
+        {
+            setUserSignedIn(true);
+        }
+    })
+
+    supabase.auth.onAuthStateChange((event, session) =>
+    {
+        switch (event)
+        {
+            case "SIGNED_IN":
+                setUserSignedIn(true);
+                break;
+            case "SIGNED_OUT":
+                setUserSignedIn(false);
+                break;
+        }
+    });
+
+    return <>
+        <header className="w-screen flex flex-row justify-between container mx-auto items-center py-5">
+            <a href="/" className="text-white hover:text-indigo-300 flex flex-row flex-nowrap whitespace-nowrap text-nowrap items-center justify-center gap-2">
+                <LogoSVG className="w-16 h-16"/>
+                <h1 className="font-black text-3xl cursor-pointer">Cancer AI</h1>
+            </a>
+            <div className="flex flex-row gap-10 items-center justify-center font-bold text-xl">
+                <a href="/" className="hover:text-indigo-300 cursor-pointer">Home</a>
+                {!userSignedIn &&
+                    <button onClick={() => setSignInModalOpen(true)}
+                            className="hover:text-indigo-300 cursor-pointer">Sign In</button>
+                }
+                {userSignedIn &&
+                    <UserDropdown/>
+                }
+            </div>
+        </header>
+    </>;
 }
