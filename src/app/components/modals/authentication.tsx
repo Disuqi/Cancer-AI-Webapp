@@ -85,7 +85,7 @@ export default function AuthenticationModal()
                             <input className="p-1 text-black rounded-md" name="password" type="password"/>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400">Don't have an account? <button
+                            <p className="text-sm text-gray-400">Don&apos;t have an account? <button
                                 className="underline text-indigo-400 hover:text-indigo-300"
                                 onClick={() => setFormState("Sign Up")}>Sign Up</button></p>
                         </div>
