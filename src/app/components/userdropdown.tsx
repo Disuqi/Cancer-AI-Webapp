@@ -1,8 +1,9 @@
 import {Menu, Transition} from "@headlessui/react";
-import React, {Fragment} from "react";
+import React, {Fragment, useState} from "react";
 import {TiUser} from "react-icons/ti";
 import {supabase} from "@/lib/supabase";
 import {toast} from "react-hot-toast";
+import Link from "next/link";
 
 export default function UserDropdown()
 {
@@ -18,7 +19,8 @@ export default function UserDropdown()
             toast.success("Signed out!");
         }
     }
-    return <Menu as="div" className="relative">
+    return <>
+            <Menu as="div" className="relative">
             <Menu.Button className="bg-gray-100 text-gray-900 rounded-full hover:bg-indigo-400">
                 <TiUser className="w-8 h-8 m-1"/>
             </Menu.Button>
@@ -36,13 +38,11 @@ export default function UserDropdown()
                     <div className="p-1">
                         <Menu.Item>
                             {({active}) => (
-                                <button
-                                    className={`${
-                                        active && 'bg-indigo-400'
-                                    } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                                >
+                                <Link href="/history" className={`${
+                                    active && 'bg-indigo-500'
+                                } group flex w-full items-center rounded-md px-2 py-2 text-sm`}>
                                     History
-                                </button>
+                                </Link>
                             )}
                         </Menu.Item>
                         <Menu.Item>
@@ -61,4 +61,6 @@ export default function UserDropdown()
                 </Menu.Items>
             </Transition>
         </Menu>
+    </>
+
 }

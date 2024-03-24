@@ -1,11 +1,11 @@
 "use client"
+
 import { toast } from "react-hot-toast";
 import {useEffect, useState} from "react";
 import {supabase} from "@/lib/supabase";
 import {BiSolidDislike, BiSolidLike} from "react-icons/bi";
 import {Scan} from "@/lib/entities/scan";
-import {useRecoilState} from "recoil";
-import {userSignedInState} from "@/app/atoms/authentication";
+import {dateToSupabaseDate} from "@/lib/date";
 
 export default function Page()
 {
@@ -51,6 +51,12 @@ export default function Page()
 
     const detect = async () =>
     {
+        if(currentScan)
+        {
+            toast.error("Upload a different image");
+            return;
+        }
+
         setLoading(true);
 
         if(image == null)
@@ -60,9 +66,18 @@ export default function Page()
             return;
         }
 
-        const response = await toast.promise( submitScan(image, detector, user), {loading: "Detecting...", success: "Detected", error: "Failed to detect"});
-        const scan = response as Scan;
-        setScan(scan);
+        try
+        {
+
+            const response = await toast
+                .promise( submitScan(image, detector, user), {loading: "Detecting...", success: "Detected", error: "Something went wrong!"});
+            const scan = response as Scan;
+            setScan(scan);
+        }
+        catch(e)
+        {
+            console.error(e);
+        }
         setLoading(false);
     }
 
@@ -116,14 +131,14 @@ export default function Page()
                     </div>
                 }
             </div>
-            <button className="rounded-full px-7 py-3 m-2 bg-indigo-400 font-semibold hover:bg-indigo-300"
-                    disabled={loading} onClick={detect}>{loading ? "Detecting..." : "Detect"}
+            <button className="rounded-full px-7 py-3 m-2 bg-indigo-400 font-semibold hover:bg-indigo-300" disabled={loading} onClick={detect}>
+                {loading ? "Detecting..." : "Detect"}
             </button>
         </div>
     </div>
 }
 
-async function submitScan(image, detector, user) : Promise<Scan>
+async function submitScan(image, detector, user): Promise<Scan>
 {
     const formData = new FormData();
     formData.append("image", image);
@@ -134,7 +149,7 @@ async function submitScan(image, detector, user) : Promise<Scan>
             body: formData,
         });
     const scanResult = await apiResponse.json();
-    let scan = new Scan(detector.id, scanResult, null);
+    let scan = new Scan(detector.id, scanResult, null, dateToSupabaseDate(new Date()));
 
     if(user)
     {
@@ -142,5 +157,8 @@ async function submitScan(image, detector, user) : Promise<Scan>
         scan = (await supabase.from("Scans").insert(scan).select()).data[0] as Scan;
         await supabase.storage.from("scans").upload(user.id + "/" + scan.id + ".jpg", image);
     }
+
+    await supabase.from("Detectors").update({uses: detector.uses + 1}).eq("id", detector.id);
     return scan;
+
 }

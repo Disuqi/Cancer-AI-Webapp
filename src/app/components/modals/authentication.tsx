@@ -7,23 +7,8 @@ import {useRecoilState} from "recoil";
 import {signInModalState} from "@/app/atoms/authentication";
 import {supabase} from "@/lib/supabase";
 import {toast} from "react-hot-toast";
+import {defaultModalStyle} from "@/lib/constants";
 
-const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-        padding: 0,
-        borderWidth: 1,
-        borderColor: "gray",
-    },
-    overlay:{
-        backgroundColor: "rgba(0, 0, 0, 0.4)"
-    }
-};
 
 export default function AuthenticationModal()
 {
@@ -40,7 +25,8 @@ export default function AuthenticationModal()
         if(response.error)
         {
             toast.error("Failed to sign in!");
-        }else
+        }
+        else
         {
             toast.success("Signed in!");
             setSignInModalOpen(false);
@@ -78,8 +64,9 @@ export default function AuthenticationModal()
     }
 
     return <Modal
-            style={customStyles}
+            style={defaultModalStyle}
             isOpen={signInModalOpen}
+            onRequestClose={() => setSignInModalOpen(false)}
             >
         <div className="p-10 bg-gray-800 text-gray-200">
             <div className="flex flex-row items-center mb-2">

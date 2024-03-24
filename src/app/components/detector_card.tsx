@@ -18,21 +18,19 @@ export default function DetectorCard(props: {detector: Detector})
             if(response.error)
             {
                 console.error(response.error);
+                setRating(null);
             }
             else
             {
-                const ratings = response.data;
+                const scans = response.data;
                 let positive = 0;
                 let negative = 0;
-                ratings.forEach((rating: Scan) =>
+                scans.forEach((scan: Scan) =>
                 {
-                    if(rating.rating)
-                    {
+                    if(scan.rating == true)
                         positive++;
-                    }else if(rating.rating == false)
-                    {
+                    else if(scan.rating == false)
                         negative++;
-                    }
                 });
                 setRating({positive: positive, negative: negative});
             }
