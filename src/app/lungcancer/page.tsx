@@ -139,17 +139,27 @@ export default function Page()
 
 async function submitScan(image, detector, user)
 {
-    const apiResponse = await fetch("https://api-inference.huggingface.co/models/DunnBC22/vit-base-patch16-224-in21k_lung_and_colon_cancer",
+    let apiResponse = await fetch("https://api-inference.huggingface.co/models/DunnBC22/vit-base-patch16-224-in21k_lung_and_colon_cancer",
         {
             headers: { Authorization : "Bearer " + process.env.NEXT_PUBLIC_HUGGING_FACE_AUTH },
             method: "POST",
             body: image,
         });
-    const scanResult = await apiResponse.json();
+    let scanResult = await apiResponse.json();
     console.log(scanResult);
 
     if(scanResult.hasOwnProperty("error") && scanResult.hasOwnProperty("estimated_time"))
+    {
         await sleep(scanResult.estimated_time * 1000);
+
+        apiResponse = await fetch("https://api-inference.huggingface.co/models/DunnBC22/vit-base-patch16-224-in21k_lung_and_colon_cancer",
+            {
+                headers: { Authorization : "Bearer " + process.env.NEXT_PUBLIC_HUGGING_FACE_AUTH },
+                method: "POST",
+                body: image,
+            });
+        scanResult = await apiResponse.json();
+    }
     else if(scanResult.hasOwnProperty("error"))
         throw new Error("Failed to load model");
 
