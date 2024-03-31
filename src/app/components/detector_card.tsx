@@ -9,7 +9,7 @@ import {BiSolidDislike, BiSolidLike} from "react-icons/bi";
 export default function DetectorCard(props: {detector: Detector})
 {
     const [rating, setRating] = useState<{positive: number, negative: number} | null>(null);
-    const image = supabase.storage.from("detector_cover_image").getPublicUrl(props.detector.id.toString() + ".jpeg").data.publicUrl;
+    const image = supabase.storage.from("detector_cover_image").getPublicUrl(props.detector.id.toString() + ".jpg").data.publicUrl;
 
     useEffect(() =>
     {
@@ -40,7 +40,7 @@ export default function DetectorCard(props: {detector: Detector})
     <Link href={props.detector.page_href}>
     <div className="bg-gray-800 border-gray-700 border flex flex-col rounded-md w-[300px] hover:brightness-125 transition duration-150 ease-in-out">
         <div className="bg-black rounded-t-md">
-            <img className="object-contain w-96 h-48" src={image}/>
+            <img className="object-cover w-96 h-48 rounded-t-md" src={image}/>
         </div>
         <div className="p-3 border-gray-700 border-t">
           <h1 className="text-white font-bold text-lg">{props.detector.title}</h1>

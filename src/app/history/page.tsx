@@ -16,6 +16,7 @@ export default function Page()
     const [detectors, setDetectors] = useState<Map<number, Detector>>(new Map<number, Detector>());
     const [imagePreviewModal, setImagePreviewModal] = useState<boolean>(false);
     const [image, setImage] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() =>
     {
@@ -60,16 +61,19 @@ export default function Page()
 
     const openImageModal = async (scan: Scan) =>
     {
-        const imageFile = await supabase.storage.from("scans").download(scan.user_id + "/" + scan.id + ".jpg");
-        console.log(imageFile);
+        if(loading) return;
+        setLoading(true);
+        const downloadImagePromise = supabase.storage.from("scans").download(scan.user_id + "/" + scan.id + ".jpg");
+        const imageFile = await toast.promise(downloadImagePromise, {loading: "Loading Image...", success: "Image Loaded", error: "Failed to load image"});
         if(imageFile.error)
         {
-            toast.error("Failed to load image");
+            setLoading(false);
             return;
         }
         const image = URL.createObjectURL(imageFile.data);
         setImage(image);
         setImagePreviewModal(true);
+        setLoading(false);
     }
 
     return <div className="container mx-auto">
@@ -106,7 +110,7 @@ export default function Page()
                         {scans.map((scan, index) => {
                             return <tr key={index} className="border-b border-gray-700">
                                 <th scope="row"
-                                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{detectors[scan.detector_id].title}</th>
+                                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"><a className="cursor-pointer hover:text-indigo-500" href={detectors[scan.detector_id].page_href}>{detectors[scan.detector_id].title}</a></th>
                                 <td className="px-6 py-4">{new Date(scan.date).toLocaleDateString()}</td>
                                 <td className="px-6 py-4">{scan.result}</td>
                                 <td className="px-6 py-2">
