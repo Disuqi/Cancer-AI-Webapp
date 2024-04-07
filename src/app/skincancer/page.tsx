@@ -2,10 +2,11 @@
 
 import { toast } from "react-hot-toast";
 import {useEffect, useState} from "react";
-import {supabase} from "@/lib/supabase";
 import {BiSolidDislike, BiSolidLike} from "react-icons/bi";
-import {Scan} from "@/lib/entities/scan";
-import {dateToSupabaseDate} from "@/lib/date";
+import {getUser} from "@/lib/supabase/auth";
+import {getDetector} from "@/lib/supabase/detector";
+import {Model} from "@/lib/hugging_face";
+import {rateScan, submitScan} from "@/lib/utils";
 
 export default function Page()
 {
@@ -17,30 +18,10 @@ export default function Page()
 
     useEffect(() =>
     {
-        supabase.auth.getUser().then(response =>
-        {
-            if(response.data)
-                setUser(response.data.user);
-        });
-
-        supabase.from("Detectors").select("*").eq("id", 3).then(response =>
-        {
-            if(response.data)
-                setDetector(response.data[0]);
-        });
-
-        supabase.auth.onAuthStateChange((event, session) =>
-        {
-            switch (event)
-            {
-                case "SIGNED_IN":
-                    setUser(session.user);
-                    break;
-                case "SIGNED_OUT":
-                    setUser(null);
-                    break;
-            }
-        })
+        getUser().then(response => setUser(response));
+        getDetector(3).then(response => setDetector(response));
+        // onSignIn((user) => setUser(user));
+        // onSignOut(() => setUser(null));
     }, []);
 
     const imageUploaded = async (e: any) =>
@@ -52,44 +33,31 @@ export default function Page()
     const detect = async () =>
     {
         if(currentScan)
-        {
-            toast.error("Upload a different image");
-            return;
-        }
+            return toast.error("Upload a different image");
+        if(!image)
+            return toast.error("Upload an image first");
 
         setLoading(true);
 
-        if(image == null)
-        {
-            toast.error("Upload an image first");
-            setLoading(false);
-            return;
-        }
-
         try
         {
-            const response = await toast
-                .promise( submitScan(image, detector, user), {loading: "Detecting...", success: "Detected", error: "Something went wrong!"});
-            const scan = response as Scan;
+            const scan = await toast
+                .promise( submitScan(Model.SkinCancer, image, detector, user), {loading: "Detecting...", success: "Detected", error: "Something went wrong!"});
             setScan(scan);
         }
         catch(e)
         {
             console.error(e);
         }
-        setLoading(false);
+        finally
+        {
+            setLoading(false);
+        }
     }
 
-    const rateScan = async (rating: boolean) =>
+    const onRate = (rating: boolean) =>
     {
-        let newRating = currentScan.rating;
-        if(newRating == rating)
-            newRating = null
-        else
-            newRating = rating;
-
-        const updatedScan = (await supabase.from("Scans").update({ rating: newRating }).eq("id", currentScan.id).select()).data[0] as Scan;
-        setScan(updatedScan);
+        rateScan(currentScan, rating).then(response => setScan(response));
     }
 
     return <div className="container mx-auto flex flex-col">
@@ -119,10 +87,10 @@ export default function Page()
                             className="font-bold text-indigo-300">{currentScan.result}</span> detected</h1>
                         {user && currentScan.user_id != null &&
                             <div className="flex justify-center items-center gap-2">
-                                <button onClick={() => rateScan(true)}
+                                <button onClick={() => onRate(true)}
                                         className={`w-8 h-8 flex justify-center items-center rounded-full text-white hover:bg-indigo-400 ${currentScan.rating == true? "bg-indigo-500" : "bg-green-600"}`} >
                                     <BiSolidLike/></button>
-                                <button onClick={() => rateScan(false)}
+                                <button onClick={() => onRate(false)}
                                         className={`w-8 h-8 flex justify-center items-center rounded-full text-white hover:bg-indigo-400 ${currentScan.rating == false? "bg-indigo-500" : "bg-red-600"}`}>
                                     <BiSolidDislike/></button>
                             </div>
@@ -135,78 +103,4 @@ export default function Page()
             </button>
         </div>
     </div>
-}
-
-async function submitScan(image, detector, user)
-{
-    let apiResponse = await fetch("https://api-inference.huggingface.co/models/Anwarkh1/Skin_Cancer-Image_Classification",
-        {
-            headers: { Authorization : "Bearer " + process.env.NEXT_PUBLIC_HUGGING_FACE_AUTH },
-            method: "POST",
-            body: image,
-        });
-    let scanResult = await apiResponse.json();
-    console.log(scanResult);
-
-    if(scanResult.hasOwnProperty("error") && scanResult.hasOwnProperty("estimated_time"))
-    {
-        await sleep(scanResult.estimated_time * 1000);
-
-        apiResponse = await fetch("https://api-inference.huggingface.co/models/DunnBC22/vit-base-patch16-224-in21k_lung_and_colon_cancer",
-            {
-                headers: { Authorization : "Bearer " + process.env.NEXT_PUBLIC_HUGGING_FACE_AUTH },
-                method: "POST",
-                body: image,
-            });
-        scanResult = await apiResponse.json();
-    }
-    else if(scanResult.hasOwnProperty("error"))
-        throw new Error("Failed to load model");
-
-    if (!Array.isArray(scanResult) || scanResult.length === 0)
-    {
-        throw new Error("Failed to load model");
-    }
-    const resultString = resultToString(scanResult);
-    let scan = new Scan(detector.id, resultString, null, dateToSupabaseDate(new Date()));
-
-    if(user)
-    {
-        scan.user_id = user.id;
-        scan = (await supabase.from("Scans").insert(scan).select()).data[0] as Scan;
-        await supabase.storage.from("scans").upload(user.id + "/" + scan.id + ".jpg", image);
-    }
-
-    await supabase.from("Detectors").update({uses: detector.uses + 1}).eq("id", detector.id);
-    return scan;
-}
-
-function resultToString(result: { label : string, score: number }[]): string
-{
-    const labelToName =
-        {
-            "basal_cell_carcinoma": "Basal Cell Carcinoma",
-            "vascular_lesions": "Vascular Lesions",
-            "benign_keratosis-like_lesions": "Benign Keratosis-like Lesions",
-            "melanocytic_Nevi": "Melanocytic Nevi",
-            "actinic_keratoses": "Actinic Keratoses"
-        };
-
-    let highestScoreLabel = result[0].label;
-    let highestScore = result[0].score;
-
-    for (let i = 1; i < result.length; i++)
-    {
-        if (result[i].score > highestScore)
-        {
-            highestScore = result[i].score;
-            highestScoreLabel = result[i].label;
-        }
-    }
-
-    return labelToName[highestScoreLabel];
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }

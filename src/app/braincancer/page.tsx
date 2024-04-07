@@ -2,10 +2,13 @@
 
 import { toast } from "react-hot-toast";
 import {useEffect, useState} from "react";
-import {supabase} from "@/lib/supabase";
 import {BiSolidDislike, BiSolidLike} from "react-icons/bi";
 import {Scan} from "@/lib/entities/scan";
 import {dateToSupabaseDate} from "@/lib/date";
+import {getUser} from "@/lib/supabase/auth";
+import {getDetector, increaseScanCount} from "@/lib/supabase/detector";
+import {saveScan} from "@/lib/supabase/scan";
+import {rateScan} from "@/lib/utils";
 
 export default function Page()
 {
@@ -17,30 +20,10 @@ export default function Page()
 
     useEffect(() =>
     {
-        supabase.auth.getUser().then(response =>
-        {
-            if(response.data)
-                setUser(response.data.user);
-        });
-
-        supabase.from("Detectors").select("*").eq("id", 1).then(response =>
-        {
-            if(response.data)
-                setDetector(response.data[0]);
-        });
-
-        supabase.auth.onAuthStateChange((event, session) =>
-        {
-            switch (event)
-            {
-                case "SIGNED_IN":
-                    setUser(session.user);
-                    break;
-                case "SIGNED_OUT":
-                    setUser(null);
-                    break;
-            }
-        })
+        getUser().then(response => setUser(response));
+        getDetector(1).then(response => setDetector(response));
+        // onSignIn((user) => setUser(user));
+        // onSignOut(() => setUser(null));
     }, []);
 
     const imageUploaded = async (e: any) =>
@@ -81,16 +64,9 @@ export default function Page()
         setLoading(false);
     }
 
-    const rateScan = async (rating: boolean) =>
+    const onRate = (rating: boolean) =>
     {
-        let newRating = currentScan.rating;
-        if(newRating == rating)
-            newRating = null
-        else
-            newRating = rating;
-
-        const updatedScan = (await supabase.from("Scans").update({ rating: newRating }).eq("id", currentScan.id).select()).data[0] as Scan;
-        setScan(updatedScan);
+        rateScan(currentScan, rating).then(response => setScan(response));
     }
 
     return <div className="container mx-auto flex flex-col">
@@ -120,10 +96,10 @@ export default function Page()
                                 className="font-bold text-indigo-300">{currentScan.result}</span> detected</h1>
                         {user && currentScan.user_id != null &&
                             <div className="flex justify-center items-center gap-2">
-                                    <button onClick={() => rateScan(true)}
+                                    <button onClick={() => onRate(true)}
                                             className={`w-8 h-8 flex justify-center items-center rounded-full text-white hover:bg-indigo-400 ${currentScan.rating == true? "bg-indigo-500" : "bg-green-600"}`} >
                                         <BiSolidLike/></button>
-                                    <button onClick={() => rateScan(false)}
+                                    <button onClick={() => onRate(false)}
                                             className={`w-8 h-8 flex justify-center items-center rounded-full text-white hover:bg-indigo-400 ${currentScan.rating == false? "bg-indigo-500" : "bg-red-600"}`}>
                                         <BiSolidDislike/></button>
                             </div>
@@ -148,17 +124,16 @@ async function submitScan(image, detector, user): Promise<Scan>
             method: "POST",
             body: formData,
         });
-    const scanResult = await apiResponse.json();
-    let scan = new Scan(detector.id, scanResult, null, dateToSupabaseDate(new Date()));
 
+    const result = await apiResponse.json();
+    let scan = new Scan(detector.id, result, null, dateToSupabaseDate(new Date()));
     if(user)
     {
         scan.user_id = user.id;
-        scan = (await supabase.from("Scans").insert(scan).select()).data[0] as Scan;
-        await supabase.storage.from("scans").upload(user.id + "/" + scan.id + ".jpg", image);
+        scan = await saveScan(scan, image);
     }
 
-    await supabase.from("Detectors").update({uses: detector.uses + 1}).eq("id", detector.id);
+    await increaseScanCount(detector);
     return scan;
 
 }

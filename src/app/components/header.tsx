@@ -2,36 +2,25 @@
 import LogoSVG from "@/app/svgs/logo";
 import {useRecoilState} from "recoil";
 import {signInModalState, userSignedInState} from "@/app/atoms/authentication";
-import {supabase} from "@/lib/supabase";
 import UserDropdown from "@/app/components/userdropdown";
 import Link from "next/link";
+import {useEffect} from "react";
+import {getUser} from "@/lib/supabase/auth";
 
 export default function Header() {
     const [signInModalOpen, setSignInModalOpen] = useRecoilState(signInModalState);
     const [userSignedIn, setUserSignedIn] = useRecoilState(userSignedInState);
-    supabase.auth.getUser().then(response =>
-    {
-        if(response.error)
-        {
-            setUserSignedIn(false);
-        }else
-        {
-            setUserSignedIn(true);
-        }
-    })
 
-    supabase.auth.onAuthStateChange((event, session) =>
+    useEffect(() =>
     {
-        switch (event)
+        getUser().then(user =>
         {
-            case "SIGNED_IN":
+            if(user)
                 setUserSignedIn(true);
-                break;
-            case "SIGNED_OUT":
+            else
                 setUserSignedIn(false);
-                break;
-        }
-    });
+        });
+    }, []);
 
     return <>
         <header className="w-screen flex flex-row justify-between container mx-auto items-center py-5">

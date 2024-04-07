@@ -5,9 +5,9 @@ import {IoIosCloseCircle} from "react-icons/io";
 import {useState} from "react";
 import {useRecoilState} from "recoil";
 import {signInModalState} from "@/app/atoms/authentication";
-import {supabase} from "@/lib/supabase";
 import {toast} from "react-hot-toast";
 import {defaultModalStyle} from "@/lib/constants";
+import {signIn, signUp} from "@/lib/supabase/auth";
 
 
 export default function AuthenticationModal()
@@ -15,52 +15,37 @@ export default function AuthenticationModal()
     const [formState, setFormState] = useState<"Sign In" | "Sign Up" | "Reset Password">("Sign In");
     const [signInModalOpen, setSignInModalOpen] = useRecoilState(signInModalState);
 
-    const signIn = async (e: any) =>
+    const submitSignIn = async (e: any) =>
     {
         e.preventDefault();
         const email = e.target.elements.email.value;
         const password = e.target.elements.password.value;
 
-        const response = await supabase.auth.signInWithPassword({email: email, password: password});
-        if(response.error)
-        {
-            toast.error("Failed to sign in!");
-        }
-        else
-        {
-            toast.success("Signed in!");
-            setSignInModalOpen(false);
-        }
+        const success = await signIn(email, password);
+        if(!success)
+            return toast.error("Failed to sign in!");
+
+        toast.success("Signed in!");
+        setSignInModalOpen(false);
     }
 
-    const signUp = async (e: any) =>
+    const submitSignUp = async (e: any) =>
     {
         e.preventDefault();
         const username = e.target.elements.username.value;
         const email = e.target.elements.email.value;
         const password = e.target.elements.password.value;
         const confirmPassword = e.target.elements.confirmPassword.value;
-        if(password !== confirmPassword)
-        {
-            toast.error("Passwords do not match!");
-            return;
-        }
 
-        const response = await supabase.auth.signUp({email: email, password: password, options:
-                {
-                    data:
-                        {
-                            display_name: username
-                        }
-                }});
-        if(response.error)
-        {
-            toast.error("Failed to sign up!");
-        }else
-        {
-            toast.success("Signed up!");
-            setSignInModalOpen(false);
-        }
+        if(password !== confirmPassword)
+            return toast.error("Passwords do not match!");
+
+        const success = await signUp(username, email, password);
+        if(!success)
+            return toast.error("Failed to sign up!");
+
+        toast.success("Signed up!");
+        setSignInModalOpen(false);
     }
 
     return <Modal
@@ -75,7 +60,7 @@ export default function AuthenticationModal()
                         onClick={() => setSignInModalOpen(false)}><IoIosCloseCircle className="w-6 h-6"/></button>
             </div>
             {formState === "Sign In" &&
-                    <form className="flex flex-col gap-2" onSubmit={signIn}>
+                    <form className="flex flex-col gap-2" onSubmit={submitSignIn}>
                         <div className="flex flex-col">
                             <label  className="font-semibold">Email</label>
                             <input className="p-1 text-black rounded-md" name="email" type="email"/>
@@ -98,7 +83,7 @@ export default function AuthenticationModal()
                     </form>
             }
             {formState === "Sign Up" &&
-                <form className="flex flex-col gap-2" onSubmit={signUp}>
+                <form className="flex flex-col gap-2" onSubmit={submitSignUp}>
                     <div className="flex flex-col">
                         <label className="font-semibold">Username</label>
                         <input className="p-1 text-black rounded-md" name="username" type="text"/>

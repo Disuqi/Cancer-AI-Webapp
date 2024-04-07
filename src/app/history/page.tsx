@@ -2,13 +2,14 @@
 
 import {Scan} from "@/lib/entities/scan";
 import {useEffect, useState} from "react";
-import {supabase} from "@/lib/supabase";
 import {Detector} from "@/lib/entities/detector";
 import {BiSolidDislike, BiSolidLike} from "react-icons/bi";
 import ScanImageModal from "@/app/components/modals/scanImageModal";
 import {IoImage} from "react-icons/io5";
-import {resolveObjectURL} from "node:buffer";
 import {toast} from "react-hot-toast";
+import {getUser} from "@/lib/supabase/auth";
+import {getScanImage, getUserScans} from "@/lib/supabase/scan";
+import {getDetectors} from "@/lib/supabase/detector";
 
 export default function Page()
 {
@@ -20,42 +21,20 @@ export default function Page()
 
     useEffect(() =>
     {
-        supabase.auth.getUser().then(response =>
-        {
-            if(response.error || !response.data)
+        getUser().then(user => {
+            if (user == null)
                 return;
-
-            supabase.from("Scans").select("*").eq("user_id", response.data.user.id)
-                .then(response =>
-                {
-                    if(response.error)
-                    {
-                        console.error(response.error);
-                        setScans([]);
-                    }
-                    else
-                    {
-                        setScans(response.data);
-                    }
-                });
+            getUserScans(user.id).then(scans => setScans(scans));
         });
 
-        supabase.from("Detectors").select("*").then(response =>
+        getDetectors().then(detectors =>
         {
-            if(response.error)
+            let detectorMap = new Map<number, Detector>();
+            detectors.forEach(detector =>
             {
-                console.error(response.error);
-            }
-            else
-            {
-                const data = response.data;
-                let detectorMap = new Map<number, Detector>()
-                data.forEach(detector =>
-                {
-                    detectorMap[detector.id] = detector;
-                });
-                setDetectors(detectorMap);
-            }
+                detectorMap[detector.id] = detector;
+            });
+            setDetectors(detectorMap);
         });
     },[]);
 
@@ -63,14 +42,14 @@ export default function Page()
     {
         if(loading) return;
         setLoading(true);
-        const downloadImagePromise = supabase.storage.from("scans").download(scan.user_id + "/" + scan.id + ".jpg");
-        const imageFile = await toast.promise(downloadImagePromise, {loading: "Loading Image...", success: "Image Loaded", error: "Failed to load image"});
-        if(imageFile.error)
-        {
-            setLoading(false);
-            return;
-        }
-        const image = URL.createObjectURL(imageFile.data);
+
+        const downloadImagePromise = getScanImage(scan);
+        const imageData = await toast.promise(downloadImagePromise, {loading: "Loading Image...", success: "Image Loaded", error: "Failed to load image"});
+
+        if(!imageData)
+            return setLoading(false);
+
+        const image = URL.createObjectURL(imageData);
         setImage(image);
         setImagePreviewModal(true);
         setLoading(false);

@@ -1,5 +1,4 @@
-import {atom, useRecoilState} from "recoil";
-import {supabase} from "@/lib/supabase";
+import {atom} from "recoil";
 
 export const signInModalState = atom({
     key: 'signInModalState',

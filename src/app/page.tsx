@@ -3,23 +3,14 @@ import DetectorCard from "@/app/components/detector_card";
 import {useEffect, useState} from "react";
 import {Detector} from "@/lib/entities/detector";
 import Loading from "@/app/components/loading";
-import {supabase} from "@/lib/supabase";
+import {getDetectors} from "@/lib/supabase/detector";
 
 export default function Home() {
     const [detectors, setDetectors] = useState<Detector[]>([]);
 
     useEffect(() =>
     {
-        supabase.from("Detectors").select("*").then(response =>
-        {
-            if(response.error)
-            {
-                console.error(response.error);
-            }else
-            {
-                setDetectors(response.data as Detector[]);
-            }
-        });
+        getDetectors().then(detectors => setDetectors(detectors));
     }, []);
 
     return (
