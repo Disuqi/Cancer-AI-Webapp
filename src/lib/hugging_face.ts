@@ -1,5 +1,4 @@
 "use server"
-import {sleep} from "@supabase/gotrue-js/src/lib/helpers";
 import { Model, ModelLabels } from "./enums/model";
 
 export type HuggingFaceResult = { label: string, score: number }[]
@@ -55,4 +54,9 @@ function getHighestScoreLabel(model: Model, result: HuggingFaceResult): string
     }
 
     return labelToName[highestScoreLabel];
+}
+
+function sleep(ms: number)
+{
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
