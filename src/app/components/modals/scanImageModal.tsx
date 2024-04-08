@@ -2,7 +2,6 @@
 import Modal from "react-modal";
 import {defaultModalStyle} from "@/lib/constants";
 import {IoIosCloseCircle} from "react-icons/io";
-import {resolveObjectURL} from "node:buffer";
 
 export default function ScanImageModal(props: {isOpen: boolean, setIsOpen: (b : boolean) => void, image: string})
 {

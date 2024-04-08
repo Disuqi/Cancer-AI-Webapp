@@ -5,7 +5,7 @@ export const signInModalState = atom({
     default: false,
 })
 
-export const userSignedInState = atom({
-    key: 'userSignedIn',
-    default: false,
+export const signedInUser = atom({
+    key: 'signedInUser',
+    default: null,
 })

@@ -1,7 +1,7 @@
 "use client"
 import LogoSVG from "@/app/svgs/logo";
 import {useRecoilState} from "recoil";
-import {signInModalState, userSignedInState} from "@/app/atoms/authentication";
+import {signInModalState, signedInUser} from "@/app/atoms/authentication";
 import UserDropdown from "@/app/components/userdropdown";
 import Link from "next/link";
 import {useEffect} from "react";
@@ -9,16 +9,14 @@ import {getUser} from "@/lib/supabase/auth";
 
 export default function Header() {
     const [signInModalOpen, setSignInModalOpen] = useRecoilState(signInModalState);
-    const [userSignedIn, setUserSignedIn] = useRecoilState(userSignedInState);
+    const [signedUser, setSignedInUser] = useRecoilState(signedInUser);
 
     useEffect(() =>
     {
         getUser().then(user =>
         {
             if(user)
-                setUserSignedIn(true);
-            else
-                setUserSignedIn(false);
+                setSignedInUser(user);
         });
     }, []);
 
@@ -30,11 +28,11 @@ export default function Header() {
             </Link>
             <div className="flex flex-row gap-10 items-center justify-center font-bold text-xl">
                 <Link href="/" className="hover:text-indigo-300 cursor-pointer">Home</Link>
-                {!userSignedIn &&
+                {!signedUser &&
                     <button onClick={() => setSignInModalOpen(true)}
                             className="hover:text-indigo-300 cursor-pointer">Sign In</button>
                 }
-                {userSignedIn &&
+                {signedUser &&
                     <UserDropdown/>
                 }
             </div>

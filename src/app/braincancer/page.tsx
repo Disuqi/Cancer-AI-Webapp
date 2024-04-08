@@ -5,25 +5,23 @@ import {useEffect, useState} from "react";
 import {BiSolidDislike, BiSolidLike} from "react-icons/bi";
 import {Scan} from "@/lib/entities/scan";
 import {dateToSupabaseDate} from "@/lib/date";
-import {getUser} from "@/lib/supabase/auth";
 import {getDetector, increaseScanCount} from "@/lib/supabase/detector";
-import {saveScan} from "@/lib/supabase/scan";
 import {rateScan} from "@/lib/utils";
+import { useRecoilState } from "recoil";
+import {signedInUser} from "@/app/atoms/authentication";
+import { saveNewScan } from "@/lib/supabase/scan";
 
 export default function Page()
 {
     const [image, setImage] = useState<File | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [user, setUser] = useState<any | null>(null);
+    const [user] = useRecoilState(signedInUser);
     const [detector, setDetector] = useState<any | null>(null);
     const [currentScan, setScan] = useState<any | null>();
 
     useEffect(() =>
     {
-        getUser().then(response => setUser(response));
         getDetector(1).then(response => setDetector(response));
-        // onSignIn((user) => setUser(user));
-        // onSignOut(() => setUser(null));
     }, []);
 
     const imageUploaded = async (e: any) =>
@@ -129,8 +127,9 @@ async function submitScan(image, detector, user): Promise<Scan>
     let scan = new Scan(detector.id, result, null, dateToSupabaseDate(new Date()));
     if(user)
     {
-        scan.user_id = user.id;
-        scan = await saveScan(scan, image);
+        const formData = new FormData();
+        formData.append("image", image);
+        scan = await saveNewScan(user.id, scan.detector_id, result, formData);
     }
 
     await increaseScanCount(detector);

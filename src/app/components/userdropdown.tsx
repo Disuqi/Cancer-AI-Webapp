@@ -4,12 +4,17 @@ import {TiUser} from "react-icons/ti";
 import {toast} from "react-hot-toast";
 import Link from "next/link";
 import {signOut} from "@/lib/supabase/auth";
+import { signedInUser } from "../atoms/authentication";
+import { useRecoilState } from "recoil";
 
 export default function UserDropdown()
 {
+    const [user, setSignedInUser] = useRecoilState(signedInUser);
+
     const singOut = async () =>
     {
         await signOut();
+        setSignedInUser(null);
         toast.success("Signed out!");
     }
 

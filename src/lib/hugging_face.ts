@@ -1,33 +1,11 @@
 "use server"
 import {sleep} from "@supabase/gotrue-js/src/lib/helpers";
+import { Model, ModelLabels } from "./enums/model";
 
 export type HuggingFaceResult = { label: string, score: number }[]
 
-export enum Model
-{
-    LungAndColonCancer = "DunnBC22/vit-base-patch16-224-in21k_lung_and_colon_cancer",
-    SkinCancer = "Anwarkh1/Skin_Cancer-Image_Classification"
-}
 
-const labels =
-    {
-        LungAndColonCancer :
-            {
-                "lung_aca": "Lung Adenocarcinoma",
-                "lung_scc": "Lung Squamous Cell Carcinoma",
-                "lung_n": "Lung Neuroendocrine Tumor",
-                "colon_n": "Colon Neuroendocrine Tumor",
-                "colon_aca": "Colon Adenocarcinoma"
-            },
-        SkinCancer :
-            {
-                "basal_cell_carcinoma": "Basal Cell Carcinoma",
-                "vascular_lesions": "Vascular Lesions",
-                "benign_keratosis-like_lesions": "Benign Keratosis-like Lesions",
-                "melanocytic_Nevi": "Melanocytic Nevi",
-                "actinic_keratoses": "Actinic Keratoses"
-            }
-    }
+
 
 const baseApiRoute = "https://api-inference.huggingface.co/models/";
 const baseRequestInit : RequestInit =
@@ -36,8 +14,9 @@ const baseRequestInit : RequestInit =
         method: "POST"
     }
 
-export async function scanImage(model: Model, image: File) : Promise<string | null>
+export async function scanImage(model : Model, formData: FormData) : Promise<string | null>
 {
+    const image = formData.get("image") as File;
     const apiRoute = baseApiRoute  + model;
     const init : RequestInit = {...baseRequestInit};
     init.body = image;
@@ -55,12 +34,13 @@ export async function scanImage(model: Model, image: File) : Promise<string | nu
 
     if(result.hasOwnProperty("error"))
         return null;
+
     return getHighestScoreLabel(model, result);
 }
 
 function getHighestScoreLabel(model: Model, result: HuggingFaceResult): string
 {
-    const labelToName = labels[model];
+    const labelToName = ModelLabels.get(model);
 
     let highestScoreLabel = result[0].label;
     let highestScore = result[0].score;

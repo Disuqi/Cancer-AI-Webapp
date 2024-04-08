@@ -3,25 +3,23 @@
 import { toast } from "react-hot-toast";
 import {useEffect, useState} from "react";
 import {BiSolidDislike, BiSolidLike} from "react-icons/bi";
-import {getUser} from "@/lib/supabase/auth";
 import {getDetector} from "@/lib/supabase/detector";
-import {Model} from "@/lib/hugging_face";
+import {Model} from "@/lib/enums/model";
 import {rateScan, submitScan} from "@/lib/utils";
+import { useRecoilState } from "recoil";
+import { signedInUser } from "../atoms/authentication";
 
 export default function Page()
 {
     const [image, setImage] = useState<File | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [user, setUser] = useState<any | null>(null);
+    const [user] = useRecoilState(signedInUser);
     const [detector, setDetector] = useState<any | null>(null);
     const [currentScan, setScan] = useState<any | null>();
 
     useEffect(() =>
     {
-        getUser().then(response => setUser(response));
         getDetector(3).then(response => setDetector(response));
-        // onSignIn((user) => setUser(user));
-        // onSignOut(() => setUser(null));
     }, []);
 
     const imageUploaded = async (e: any) =>

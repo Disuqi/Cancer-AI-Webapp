@@ -4,16 +4,17 @@ import Modal from "react-modal";
 import {IoIosCloseCircle} from "react-icons/io";
 import {useState} from "react";
 import {useRecoilState} from "recoil";
-import {signInModalState} from "@/app/atoms/authentication";
+import {signInModalState, signedInUser} from "@/app/atoms/authentication";
 import {toast} from "react-hot-toast";
 import {defaultModalStyle} from "@/lib/constants";
-import {signIn, signUp} from "@/lib/supabase/auth";
+import {getUser, signIn, signUp} from "@/lib/supabase/auth";
 
 
 export default function AuthenticationModal()
 {
     const [formState, setFormState] = useState<"Sign In" | "Sign Up" | "Reset Password">("Sign In");
     const [signInModalOpen, setSignInModalOpen] = useRecoilState(signInModalState);
+    const [signedUser, setSignedUser] = useRecoilState(signedInUser);
 
     const submitSignIn = async (e: any) =>
     {
@@ -25,8 +26,13 @@ export default function AuthenticationModal()
         if(!success)
             return toast.error("Failed to sign in!");
 
+        const user = await getUser();
+        if(!user)
+            return toast.error("Failed to sign in!");
+
         toast.success("Signed in!");
         setSignInModalOpen(false);
+        setSignedUser(user);
     }
 
     const submitSignUp = async (e: any) =>
@@ -44,11 +50,17 @@ export default function AuthenticationModal()
         if(!success)
             return toast.error("Failed to sign up!");
 
+        const user = await getUser();
+        if(user)
+            setSignedUser(user);
+
         toast.success("Signed up!");
         setSignInModalOpen(false);
+
     }
 
     return <Modal
+            ariaHideApp={false}
             style={defaultModalStyle}
             isOpen={signInModalOpen}
             onRequestClose={() => setSignInModalOpen(false)}
