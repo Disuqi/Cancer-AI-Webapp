@@ -1,24 +1,23 @@
 import {Menu, Transition} from "@headlessui/react";
 import React, {Fragment, useState} from "react";
 import {TiUser} from "react-icons/ti";
-import {supabase} from "@/lib/supabase";
 import {toast} from "react-hot-toast";
 import Link from "next/link";
+import {signOut} from "@/lib/supabase/auth";
+import { signedInUser } from "../atoms/authentication";
+import { useRecoilState } from "recoil";
 
 export default function UserDropdown()
 {
+    const [user, setSignedInUser] = useRecoilState(signedInUser);
+
     const singOut = async () =>
     {
-        const response = await supabase.auth.signOut();
-        if(response.error)
-        {
-            toast.error("Failed to sign out!");
-        }
-        else
-        {
-            toast.success("Signed out!");
-        }
+        await signOut();
+        setSignedInUser(null);
+        toast.success("Signed out!");
     }
+
     return <>
             <Menu as="div" className="relative">
             <Menu.Button className="bg-gray-100 text-gray-900 rounded-full hover:bg-indigo-400">

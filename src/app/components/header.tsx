@@ -1,37 +1,24 @@
 "use client"
 import LogoSVG from "@/app/svgs/logo";
 import {useRecoilState} from "recoil";
-import {signInModalState, userSignedInState} from "@/app/atoms/authentication";
-import {supabase} from "@/lib/supabase";
+import {signInModalState, signedInUser} from "@/app/atoms/authentication";
 import UserDropdown from "@/app/components/userdropdown";
 import Link from "next/link";
+import {useEffect} from "react";
+import {getUser} from "@/lib/supabase/auth";
 
 export default function Header() {
     const [signInModalOpen, setSignInModalOpen] = useRecoilState(signInModalState);
-    const [userSignedIn, setUserSignedIn] = useRecoilState(userSignedInState);
-    supabase.auth.getUser().then(response =>
-    {
-        if(response.error)
-        {
-            setUserSignedIn(false);
-        }else
-        {
-            setUserSignedIn(true);
-        }
-    })
+    const [signedUser, setSignedInUser] = useRecoilState(signedInUser);
 
-    supabase.auth.onAuthStateChange((event, session) =>
+    useEffect(() =>
     {
-        switch (event)
+        getUser().then(user =>
         {
-            case "SIGNED_IN":
-                setUserSignedIn(true);
-                break;
-            case "SIGNED_OUT":
-                setUserSignedIn(false);
-                break;
-        }
-    });
+            if(user)
+                setSignedInUser(user);
+        });
+    }, []);
 
     return <>
         <header className="w-screen flex flex-row justify-between container mx-auto items-center py-5">
@@ -41,11 +28,11 @@ export default function Header() {
             </Link>
             <div className="flex flex-row gap-10 items-center justify-center font-bold text-xl">
                 <Link href="/" className="hover:text-indigo-300 cursor-pointer">Home</Link>
-                {!userSignedIn &&
+                {!signedUser &&
                     <button onClick={() => setSignInModalOpen(true)}
                             className="hover:text-indigo-300 cursor-pointer">Sign In</button>
                 }
-                {userSignedIn &&
+                {signedUser &&
                     <UserDropdown/>
                 }
             </div>

@@ -1,12 +1,11 @@
-import {atom, useRecoilState} from "recoil";
-import {supabase} from "@/lib/supabase";
+import {atom} from "recoil";
 
 export const signInModalState = atom({
     key: 'signInModalState',
     default: false,
 })
 
-export const userSignedInState = atom({
-    key: 'userSignedIn',
-    default: false,
+export const signedInUser = atom({
+    key: 'signedInUser',
+    default: null,
 })
