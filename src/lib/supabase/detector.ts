@@ -4,11 +4,9 @@ import {client} from "@/lib/supabase/client";
 
 export async function getDetectors(): Promise<Detector[]>
 {
-    console.log("GET DETECTORS")
     const response = await client.from("Detectors").select("*");
-    console.log(response.error)
 
-    if(!response.data || response.error.message)
+    if(!response.data || response.error)
         return [];
 
     return response.data;
