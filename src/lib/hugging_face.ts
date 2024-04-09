@@ -22,6 +22,7 @@ export async function scanImage(model : Model, formData: FormData) : Promise<str
 
     let response = await fetch(apiRoute, init);
     let result = await response.json();
+    console.log(result);
 
     while(result.hasOwnProperty("error") && result.hasOwnProperty("estimated_time"))
     {
