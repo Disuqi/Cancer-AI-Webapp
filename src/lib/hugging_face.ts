@@ -24,9 +24,19 @@ export async function scanImage(model : Model, formData: FormData) : Promise<str
     let result = await response.json();
     console.log(result);
 
-    while(result.hasOwnProperty("error") && result.hasOwnProperty("estimated_time"))
+    let counter = 0;
+    while((result.hasOwnProperty("error") && result.hasOwnProperty("estimated_time")) || result == null)
     {
-        const sleepingtime = result.estimated_time * 1000;
+        let sleepingtime = 10000;
+        if(result)
+            sleepingtime = result.estimated_time * 1000;
+        else
+        {
+            counter++;
+            if(counter >= 3)
+                return null;
+        }
+
         console.log("Sleeping for " + sleepingtime + "ms");
         await sleep(sleepingtime);
 
