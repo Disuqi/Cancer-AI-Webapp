@@ -29,7 +29,7 @@ export async function scanImage(model : Model, formData: FormData) : Promise<str
     {
         let sleepingtime = 10000;
         if(result)
-            sleepingtime = result.estimated_time * 1000;
+            sleepingtime += result.estimated_time * 1000;
         else
         {
             counter++;
