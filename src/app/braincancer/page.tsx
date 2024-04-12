@@ -126,11 +126,7 @@ async function submitScan(image, detector, user): Promise<Scan>
     const result = await apiResponse.json();
     let scan = new Scan(detector.id, result, null, dateToSupabaseDate(new Date()));
     if(user)
-    {
-        const formData = new FormData();
-        formData.append("image", image);
         scan = await saveNewScan(user.id, scan.detector_id, result, formData);
-    }
 
     await increaseScanCount(detector);
     return scan;
