@@ -1,3 +1,4 @@
+"use client"
 import {scanImage} from "@/lib/hugging_face";
 import {Detector} from "@/lib/entities/detector";
 import {User} from "@supabase/supabase-js";
@@ -12,7 +13,15 @@ export async function submitScan(model: Model, image: File, detector: Detector, 
     const formData = new FormData();
     formData.append("image", image);
 
-    const result = await scanImage(model, formData);
+    let result = await scanImage(model, formData);
+    if (typeof result === "number")
+    {
+        await sleep(result * 1000);
+        result = await scanImage(model, formData);
+        if(typeof result !== "string")
+            throw new Error("Failed to load model");
+    }
+
     if(result == null)
         throw new Error("Failed to load model");
 
@@ -35,4 +44,9 @@ export async function rateScan(scan: Scan, newRating: boolean) : Promise<Scan>
         rating = newRating;
 
     return await updateScanRating(scan.id, rating);
+}
+
+function sleep(ms: number)
+{
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
