@@ -35,5 +35,9 @@ export async function getDetectorScans(detectorId: number) : Promise<Scan[]>
 
 export async function getScanImage(user_id: string, scan_id: number) : Promise<string>
 {
-    return (await client.storage.from("scans").createSignedUrl(user_id + "/" + scan_id + ".jpg", 1800)).data.signedUrl;
+    const response = (await client.storage.from("scans").createSignedUrl(user_id + "/" + scan_id + ".jpg", 1800)).data;
+    if(response)
+        return response.signedUrl;
+    else
+        throw new Error("Unable to load image");
 }
