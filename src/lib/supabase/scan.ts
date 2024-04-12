@@ -10,7 +10,13 @@ export async function saveNewScan(user_id: string, detector_id : number, result:
 
     let scan = new Scan(detector_id, result, null, dateToSupabaseDate(new Date()));
     scan.user_id = user_id;
-    scan = (await client.from("Scans").insert(scan).select()).data[0] as Scan;
+    let response = (await client.from("Scans").insert(scan).select());
+    console.log(await client.auth.getUser());
+    if(response.error)
+        throw new Error(response.error.message);
+    else
+        scan = response.data[0] as Scan;
+
     await client.storage.from("scans").upload(scan.user_id + "/" + scan.id + ".jpg", image);
     return scan;
 }

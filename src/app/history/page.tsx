@@ -63,7 +63,7 @@ export default function Page()
                 <h1 className="text-2xl font-bold">Scan History</h1>
             </div>
             {
-                scans  && detectors ?
+                scans  && detectors && scans.length > 0 ?
                     <table className="w-full text-sm text-left">
                     <thead
                         className="text-xs uppercase bg-gray-700 text-gray-400">
