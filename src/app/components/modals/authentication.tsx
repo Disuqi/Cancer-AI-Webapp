@@ -12,7 +12,7 @@ import {getUser, signIn, signUp} from "@/lib/supabase/auth";
 
 export default function AuthenticationModal()
 {
-    const [formState, setFormState] = useState<"Sign In" | "Sign Up" | "Reset Password">("Sign In");
+    const [formState, setFormState] = useState<"Sign In" | "Sign Up" | "Almost done" | "Reset Password">("Sign In");
     const [signInModalOpen, setSignInModalOpen] = useRecoilState(signInModalState);
     const [signedUser, setSignedUser] = useRecoilState(signedInUser);
 
@@ -54,9 +54,8 @@ export default function AuthenticationModal()
         if(user)
             setSignedUser(user);
 
-        toast.success("Signed up!");
-        setSignInModalOpen(false);
-
+        toast.success("Email sent!");
+        setFormState("Almost done");
     }
 
     return <Modal
@@ -124,6 +123,11 @@ export default function AuthenticationModal()
                         </button>
                     </div>
                 </form>
+            }
+            {formState === "Almost done" &&
+                <div className="flex flex-col gap-2">
+                    <h2>You&apos;ve got mail! Click the link in the email to finish signing up.</h2>
+                </div>
             }
         </div>
     </Modal>
