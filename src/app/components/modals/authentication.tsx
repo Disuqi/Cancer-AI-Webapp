@@ -2,7 +2,7 @@
 
 import Modal from "react-modal";
 import {IoIosCloseCircle} from "react-icons/io";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useRecoilState} from "recoil";
 import {signInModalState, signedInUser} from "@/app/atoms/authentication";
 import {toast} from "react-hot-toast";
@@ -15,6 +15,11 @@ export default function AuthenticationModal()
     const [formState, setFormState] = useState<"Sign In" | "Sign Up" | "Almost done" | "Reset Password">("Sign In");
     const [signInModalOpen, setSignInModalOpen] = useRecoilState(signInModalState);
     const [signedUser, setSignedUser] = useRecoilState(signedInUser);
+
+    useEffect(() =>
+    {
+        setFormState("Sign In");
+    }, [signInModalOpen]);
 
     const submitSignIn = async (e: any) =>
     {
