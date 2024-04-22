@@ -97,6 +97,7 @@ export default function AuthenticationModal()
                         <div>
                             <p className="text-sm text-gray-400">Don&apos;t have an account? 
                             <button
+                                type="button"
                                 data-testid="signup-button"
                                 className="underline text-indigo-400 hover:text-indigo-300"
                                 onClick={() => setFormState("Sign Up")}>Sign Up
@@ -131,7 +132,9 @@ export default function AuthenticationModal()
                     </div>
                     <div>
                         <p className="text-sm text-gray-400">Already have an account? <button
-                            data-testid="modal-sign-in-button" className="underline text-indigo-400 hover:text-indigo-300"
+                            type="button"
+                            data-testid="modal-sign-in-button"
+                            className="underline text-indigo-400 hover:text-indigo-300"
                             onClick={() => setFormState("Sign In")}>Sign In</button></p>
                     </div>
                     <div className="flex justify-center mt-6">
