@@ -29,7 +29,7 @@ export default function Header() {
             <div className="flex flex-row gap-10 items-center justify-center font-bold text-xl">
                 <Link href="/" className="hover:text-indigo-300 cursor-pointer">Home</Link>
                 {!signedUser &&
-                    <button onClick={() => setSignInModalOpen(true)}
+                    <button data-testid="signin-button" onClick={() => setSignInModalOpen(true)}
                             className="hover:text-indigo-300 cursor-pointer">Sign In</button>
                 }
                 {signedUser &&

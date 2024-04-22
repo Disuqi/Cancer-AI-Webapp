@@ -69,28 +69,32 @@ export default function AuthenticationModal()
             isOpen={signInModalOpen}
             onRequestClose={() => setSignInModalOpen(false)}
             >
-        <div className="p-10 bg-gray-800 text-gray-200">
+        <div data-testid="auth-modal" className="p-10 bg-gray-800 text-gray-200">
             <div className="flex flex-row items-center mb-2">
                 <h1 className="text-2xl font-bold">{formState}</h1>
-                <button className="ml-auto hover:text-red-600 transition duration-100 ease-in-out"
+                <button data-testid="close-auth-modal" className="ml-auto hover:text-red-600 transition duration-100 ease-in-out"
                         onClick={() => setSignInModalOpen(false)}><IoIosCloseCircle className="w-6 h-6"/></button>
             </div>
             {formState === "Sign In" &&
-                    <form className="flex flex-col gap-2" onSubmit={submitSignIn}>
+                    <form data-testid="signin-form" className="flex flex-col gap-2" onSubmit={submitSignIn}>
                         <div className="flex flex-col">
                             <label  className="font-semibold">Email</label>
-                            <input className="p-1 text-black rounded-md" name="email" type="email"/>
+                            <input data-testid="email-input" className="p-1 text-black rounded-md" name="email" type="email"/>
                         </div>
                         <div className="flex flex-col">
                             <label className="font-semibold">Password</label>
-                            <input className="p-1 text-black rounded-md" name="password" type="password"/>
+                            <input data-testid="password-input" className="p-1 text-black rounded-md" name="password" type="password"/>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400">Don&apos;t have an account? <button
+                            <p className="text-sm text-gray-400">Don&apos;t have an account? 
+                            <button
+                                data-testid="signup-button"
                                 className="underline text-indigo-400 hover:text-indigo-300"
-                                onClick={() => setFormState("Sign Up")}>Sign Up</button></p>
+                                onClick={() => setFormState("Sign Up")}>Sign Up
+                                </button>
+                            </p>
                         </div>
-                        <div className="flex justify-center mt-6">
+                        <div data-testid="submit-signin" className="flex justify-center mt-6">
                             <button
                                 className="font-semibold py-2 px-4 text-sm rounded-full bg-indigo-500 hover:bg-indigo-400"
                                 type="submit">Sign In
@@ -99,30 +103,30 @@ export default function AuthenticationModal()
                     </form>
             }
             {formState === "Sign Up" &&
-                <form className="flex flex-col gap-2" onSubmit={submitSignUp}>
+                <form data-testid="signup-form" className="flex flex-col gap-2" onSubmit={submitSignUp}>
                     <div className="flex flex-col">
                         <label className="font-semibold">Username</label>
-                        <input className="p-1 text-black rounded-md" name="username" type="text"/>
+                        <input data-testid="username-input" className="p-1 text-black rounded-md" name="username" type="text"/>
                     </div>
                     <div className="flex flex-col">
                         <label className="font-semibold">Email</label>
-                        <input className="p-1 text-black rounded-md" name="email" type="email"/>
+                        <input data-testid="email-input" className="p-1 text-black rounded-md" name="email" type="email"/>
                     </div>
                     <div className="flex flex-col mt-2">
                         <label className="font-semibold">Password</label>
-                        <input className="p-1 text-black rounded-md" name="password" type="password"/>
+                        <input data-testid="password-input" className="p-1 text-black rounded-md" name="password" type="password"/>
                     </div>
                     <div className="flex flex-col">
                         <label className="font-semibold">Confirm Password</label>
-                        <input className="p-1 text-black rounded-md" name="confirmPassword" type="password"/>
+                        <input data-testid="confirm-password-input" className="p-1 text-black rounded-md" name="confirmPassword" type="password"/>
                     </div>
                     <div>
                         <p className="text-sm text-gray-400">Already have an account? <button
-                            className="underline text-indigo-400 hover:text-indigo-300"
+                            data-testid="modal-sign-in-button" className="underline text-indigo-400 hover:text-indigo-300"
                             onClick={() => setFormState("Sign In")}>Sign In</button></p>
                     </div>
                     <div className="flex justify-center mt-6">
-                        <button
+                        <button data-testid="submit-signup"
                             className="font-semibold py-2 px-4 text-sm rounded-full bg-indigo-500 hover:bg-indigo-400"
                             type="submit">Sign Up
                         </button>

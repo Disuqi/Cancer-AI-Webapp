@@ -21,7 +21,7 @@ export default function UserDropdown()
     return <>
             <Menu as="div" className="relative">
             <Menu.Button className="bg-gray-100 text-gray-900 rounded-full hover:bg-indigo-400">
-                <TiUser className="w-8 h-8 m-1"/>
+                <TiUser title="User Dropdown" className="w-8 h-8 m-1"/>
             </Menu.Button>
             <Transition
                 as={Fragment}
