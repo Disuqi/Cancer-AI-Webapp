@@ -18,6 +18,12 @@ export async function getUser() : Promise<User|null>
     }
 }
 
+export async function resetPassword(email: string) : Promise<boolean>
+{
+    const response = await client.auth.resetPasswordForEmail(email);
+    return !response.error;
+}
+
 export async function signIn(email: string, password: string) : Promise<boolean>
 {
     const response = await client.auth.signInWithPassword({email: email, password: password});
@@ -33,6 +39,7 @@ export async function signUp(username: string, email: string, password: string) 
                         display_name: username
                     }
             }});
+    console.log(response);
     return !response.error;
 }
 

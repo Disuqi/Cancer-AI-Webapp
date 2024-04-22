@@ -33,7 +33,7 @@ export default function UserDropdown()
                 leaveTo="transform opacity-0 scale-95"
             >
                 <Menu.Items
-                    className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-gray-800 text-gray-100 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                    className="absolute z-10 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-gray-800 text-gray-100 shadow-lg ring-1 ring-black/5 focus:outline-none">
                     <div className="p-1">
                         <Menu.Item>
                             {({active}) => (

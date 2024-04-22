@@ -7,7 +7,7 @@ import {useRecoilState} from "recoil";
 import {signInModalState, signedInUser} from "@/app/atoms/authentication";
 import {toast} from "react-hot-toast";
 import {defaultModalStyle} from "@/lib/constants";
-import {getUser, signIn, signUp} from "@/lib/supabase/auth";
+import {getUser, signIn, signUp, resetPassword} from "@/lib/supabase/auth";
 
 
 export default function AuthenticationModal()
@@ -29,7 +29,7 @@ export default function AuthenticationModal()
 
         const success = await signIn(email, password);
         if(!success)
-            return toast.error("Failed to sign in!");
+            return toast.error("Invalid credentials!");
 
         const user = await getUser();
         if(!user)
@@ -63,6 +63,15 @@ export default function AuthenticationModal()
         setFormState("Almost done");
     }
 
+    const submitResetPassword = async (e: any) =>
+    {
+        e.preventDefault();
+        const email = e.target.elements.email.value;
+        const success = await resetPassword(email);
+        if(!success)
+            return toast.error("Failed to reset password!");
+        setFormState("Almost done");
+    }
     return <Modal
             ariaHideApp={false}
             style={defaultModalStyle}
@@ -135,7 +144,35 @@ export default function AuthenticationModal()
             }
             {formState === "Almost done" &&
                 <div className="flex flex-col gap-2">
-                    <h2>You&apos;ve got mail! Click the link in the email to finish signing up.</h2>
+                    <h2>You&apos;ve got mail!</h2>
+                </div>
+            }
+            {formState === "Reset Password" &&
+                <div className="flex flex-col gap-2">
+                    <form data-testid="reset-password-form" className="flex flex-col gap-2" onSubmit={submitResetPassword}>
+                        <div className="flex flex-col">
+                            <label  className="font-semibold">Email</label>
+                            <input data-testid="email-input" className="p-1 text-black rounded-md" name="email" type="email"/>
+                        </div>
+                        <div>
+                            <div>
+                                <p className="text-sm text-gray-400">Remembered Password?&nbsp;
+                                <button
+                                    type="button"
+                                    data-testid="signup-button"
+                                    className="underline text-indigo-400 hover:text-indigo-300"
+                                    onClick={() => setFormState("Sign In")}>Sign In
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                        <div data-testid="submit-signin" className="flex justify-center mt-6">
+                            <button
+                                className="font-semibold py-2 px-4 text-sm rounded-full bg-indigo-500 hover:bg-indigo-400"
+                                type="submit">Reset
+                            </button>
+                        </div>
+                    </form>
                 </div>
             }
         </div>
