@@ -95,14 +95,26 @@ export default function AuthenticationModal()
                             <input data-testid="password-input" className="p-1 text-black rounded-md" name="password" type="password"/>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400">Don&apos;t have an account? 
-                            <button
-                                type="button"
-                                data-testid="signup-button"
-                                className="underline text-indigo-400 hover:text-indigo-300"
-                                onClick={() => setFormState("Sign Up")}>Sign Up
-                                </button>
-                            </p>
+                            <div>
+                                <p className="text-sm text-gray-400">Forgot Password?&nbsp;
+                                <button
+                                    type="button"
+                                    data-testid="reset-password-button"
+                                    className="underline text-indigo-400 hover:text-indigo-300"
+                                    onClick={() => setFormState("Reset Password")}>Reset
+                                    </button>
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-400">Don&apos;t have an account? 
+                                <button
+                                    type="button"
+                                    data-testid="signup-button"
+                                    className="underline text-indigo-400 hover:text-indigo-300"
+                                    onClick={() => setFormState("Sign Up")}>Sign Up
+                                    </button>
+                                </p>
+                            </div>
                         </div>
                         <div data-testid="submit-signin" className="flex justify-center mt-6">
                             <button
